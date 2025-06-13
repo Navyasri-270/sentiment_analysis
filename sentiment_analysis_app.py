@@ -10,14 +10,15 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from nltk.stem import PorterStemmer
 
-# ✅ Ensure necessary NLTK resources are downloaded
-def safe_nltk_download(resource):
+# ✅ Safe downloader for NLTK resources
+def safe_nltk_download(resource_path, download_name=None):
     try:
-        nltk.data.find(resource)
+        nltk.data.find(resource_path)
     except LookupError:
-        nltk.download(resource.split('/')[-1])
+        nltk.download(download_name or resource_path.split('/')[-1])
 
-safe_nltk_download('tokenizers/punkt')
+# Ensure required resources
+safe_nltk_download('tokenizers/punkt', 'punkt')
 safe_nltk_download('corpora/stopwords')
 safe_nltk_download('corpora/movie_reviews')
 
@@ -53,15 +54,8 @@ model_choice = st.sidebar.selectbox("Choose Model", ["Naive Bayes", "Logistic Re
 vectorizer_choice = st.sidebar.radio("Vectorizer", ["CountVectorizer", "TF-IDF"])
 
 # Model selection
-if vectorizer_choice == "CountVectorizer":
-    vectorizer = CountVectorizer()
-else:
-    vectorizer = TfidfVectorizer()
-
-if model_choice == "Naive Bayes":
-    model = MultinomialNB()
-else:
-    model = LogisticRegression()
+vectorizer = CountVectorizer() if vectorizer_choice == "CountVectorizer" else TfidfVectorizer()
+model = MultinomialNB() if model_choice == "Naive Bayes" else LogisticRegression()
 
 pipeline = Pipeline([
     ('vectorizer', vectorizer),
@@ -74,7 +68,9 @@ accuracy = pipeline.score(X_test, y_test)
 # Prediction section
 st.subheader("🔍 Try Your Own Review")
 user_input = st.text_area("Enter a movie review:")
+
 if user_input:
+    # ✅ This line sometimes fails if punkt is missing, so we made sure it's downloaded above
     tokens = nltk.word_tokenize(user_input)
     processed = preprocess(tokens)
     prediction = pipeline.predict([processed])[0]
@@ -82,5 +78,5 @@ if user_input:
 
 # Accuracy
 st.sidebar.markdown(f"📈 Model Accuracy: `{accuracy:.2f}`")
-st.sidebar.markdown("🔹 Dataset: NLTK Movie Reviews (1,000 samples)")
-st.sidebar.markdown("🔹 Features: Stopword Removal, Porter Stemmer")
+st.sidebar.markdown("🔹 Dataset: NLTK Movie Reviews")
+st.sidebar.markdown("🔹 Preprocessing: Stopword Removal, Stemming")
