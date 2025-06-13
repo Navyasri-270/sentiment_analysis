@@ -1,4 +1,14 @@
 import nltk
+import os
+# Set a custom NLTK data directory
+nltk_data_dir = os.path.join(os.getcwd(), 'nltk_data')
+os.makedirs(nltk_data_dir, exist_ok=True)
+# Add it to NLTK's path
+nltk.data.path.append(nltk_data_dir)
+# Download required packages into that directory
+nltk.download('punkt', download_dir=nltk_data_dir)
+nltk.download('stopwords', download_dir=nltk_data_dir)
+nltk.download('movie_reviews', download_dir=nltk_data_dir)
 import streamlit as st
 from nltk.corpus import movie_reviews, stopwords
 from nltk.tokenize import word_tokenize
