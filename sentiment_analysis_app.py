@@ -12,6 +12,7 @@ from nltk.stem import PorterStemmer
 
 # Download NLTK data (safe for Streamlit Cloud)
 nltk.download('punkt')
+nltk.download('punkt_tab')
 nltk.download('movie_reviews')
 nltk.download('stopwords')
 
