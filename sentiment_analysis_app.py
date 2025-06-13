@@ -10,11 +10,16 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.pipeline import Pipeline
 from nltk.stem import PorterStemmer
 
-# Download NLTK data (safe for Streamlit Cloud)
-nltk.download('punkt')
-nltk.download('punkt_tab')
-nltk.download('movie_reviews')
-nltk.download('stopwords')
+# ✅ Ensure necessary NLTK resources are downloaded
+def safe_nltk_download(resource):
+    try:
+        nltk.data.find(resource)
+    except LookupError:
+        nltk.download(resource.split('/')[-1])
+
+safe_nltk_download('tokenizers/punkt')
+safe_nltk_download('corpora/stopwords')
+safe_nltk_download('corpora/movie_reviews')
 
 # Load dataset
 def load_movie_reviews():
@@ -70,7 +75,8 @@ accuracy = pipeline.score(X_test, y_test)
 st.subheader("🔍 Try Your Own Review")
 user_input = st.text_area("Enter a movie review:")
 if user_input:
-    processed = preprocess(nltk.word_tokenize(user_input))
+    tokens = nltk.word_tokenize(user_input)
+    processed = preprocess(tokens)
     prediction = pipeline.predict([processed])[0]
     st.markdown(f"**Sentiment:** `{prediction}`")
 
@@ -78,4 +84,3 @@ if user_input:
 st.sidebar.markdown(f"📈 Model Accuracy: `{accuracy:.2f}`")
 st.sidebar.markdown("🔹 Dataset: NLTK Movie Reviews (1,000 samples)")
 st.sidebar.markdown("🔹 Features: Stopword Removal, Porter Stemmer")
-
